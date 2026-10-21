@@ -5600,7 +5600,6 @@ function New-DATConfigMgrApplication {
         -OS $OS -Version $Version -UpdateType $PackageType -ReleaseDate $ReleaseDate | Out-Null
     New-DATIntuneRequirementScript -OutputPath $requirementPath -OEM $OEM -Model $Model -Baseboards $Baseboards `
         -OS $OS -Version $Version -UpdateType $PackageType -ReleaseDate $ReleaseDate -TargetPlatform ConfigMgr | Out-Null
-    $detectionText   = Get-Content -Path $detectionPath -Raw
     $requirementText = Get-Content -Path $requirementPath -Raw
 
     $releaseDateStamp = ConvertTo-DATReleaseDateStamp -ReleaseDate $ReleaseDate
@@ -5638,7 +5637,9 @@ function New-DATConfigMgrApplication {
             InstallCommand           = $dtSettings.InstallCommand
             ContentLocation          = $SourcePath
             ScriptLanguage           = 'PowerShell'
-            ScriptText               = $detectionText
+            # ScriptFile, not ScriptText: with code signing on the detection script carries a
+            # signature block, and the deployment type cmdlets refuse a signed script as text.
+            ScriptFile               = $detectionPath
             InstallationBehaviorType = $dtSettings.InstallationBehaviorType
             LogonRequirementType     = $dtSettings.LogonRequirementType
             UserInteractionMode      = $dtSettings.UserInteractionMode
